@@ -1,7 +1,12 @@
 #include <Arduino.h>
 
 #include <ClickEncoder.h>
+#include <U8g2lib.h>
 #include <TimerOne.h>
+#include <Wire.h>
+
+// LCD
+U8G2_SH1106_128X64_NONAME_1_HW_I2C lcd(U8G2_R0);
 
 // ENCODER
 #define ENC_PIN_A 10
@@ -23,8 +28,8 @@ void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(19200);
-	//lcd.begin();
-	//lcd.setFont(u8g2_font_6x13_tr);
+	lcd.begin();
+	lcd.setFont(u8g2_font_6x13_tr);
 	
 	Timer1.initialize(1000);
 	Timer1.attachInterrupt(timerIsr);
@@ -39,6 +44,18 @@ void setup()
 
 void loop()
 {
+	static int row=12;
+	static int col=0;
+	static bool display_update = true;
+
+	if (display_update) {
+		lcd.firstPage();
+		do {
+			lcd.drawStr(col, row, "Hello World!");
+		} while ( lcd.nextPage() );
+		display_update = false;
+	}
+
 	encPos += encoder.getValue();
 
 	if (encPos != oldEncPos) {
