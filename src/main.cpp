@@ -44,8 +44,6 @@ void setup()
 
 void loop()
 {
-	static int row=12;
-	static int col=0;
 	static bool display_update = true;
 
 	if (display_update) {
