@@ -1,10 +1,12 @@
 /******************************************************************************
- * Copyright (C) 2019 by Charles Fourneau
+ * Copyright (C) 2019, Charles Fourneau
  *
  * Library for ADS1115, 16bit I²C ADC converter
  *
- * based on Adafruit_ADS1015 code
- * allows continuous conversion mode
+ * based on Adafruit_ADS1015 code (C) 2012, Adafruit Industries
+ * - support for ADS1115 only
+ * - allows continuous conversion mode
+ * - explicit access functions for gain, sampling rate & mux
  * 
  * TODO:
  * - Comparator mode is not implemented

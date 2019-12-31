@@ -1,3 +1,13 @@
+/******************************************************************************
+ * Copyright (C) 2019, Charles Fourneau
+ *
+ * Library for ADS1115, 16bit I²C ADC converter
+ *
+ * based on Adafruit_ADS1015 code (C) 2012, Adafruit Industries
+ * 
+ * see header file for more information
+ ******************************************************************************/
+
 #include "ADS1115.h"
 
 #include <Arduino.h>
