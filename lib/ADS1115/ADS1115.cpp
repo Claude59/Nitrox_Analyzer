@@ -10,11 +10,11 @@
  */
 static void writeRegister(uint8_t address, uint8_t reg, uint16_t value)
 {
-    Wire.beginTransmission(address);
-    Wire.write(reg);
-    Wire.write((uint8_t)(value >> 8));
-    Wire.write((uint8_t)(value & 0xFF));
-    Wire.endTransmission();
+	Wire.beginTransmission(address);
+	Wire.write(reg);
+	Wire.write((uint8_t)(value >> 8));
+	Wire.write((uint8_t)(value & 0xFF));
+	Wire.endTransmission();
 }
 
 /**
@@ -22,22 +22,22 @@ static void writeRegister(uint8_t address, uint8_t reg, uint16_t value)
  */
 static uint16_t readRegister(uint8_t address, uint8_t reg)
 {
-    Wire.beginTransmission(address);
-    Wire.write(reg);
-    Wire.endTransmission();
-    Wire.requestFrom(address, (uint8_t)2);
-    return (((uint16_t)Wire.read() << 8) | Wire.read());
+	Wire.beginTransmission(address);
+	Wire.write(reg);
+	Wire.endTransmission();
+	Wire.requestFrom(address, (uint8_t)2);
+	return (((uint16_t)Wire.read() << 8) | Wire.read());
 }
 
 /**
  * Constructor
  */
 ADS1115::ADS1115(uint8_t address = ADS1115_ADDRESS) :
-    address(address),
-    config(ADS1115_CONFIG_EMPTY)
+	address(address),
+	config(ADS1115_CONFIG_EMPTY)
 {
-    // this->address = address;
-    // this->config = ADS1115_CONFIG_EMPTY;
+	// this->address = address;
+	// this->config = ADS1115_CONFIG_EMPTY;
 }
 
 /**
@@ -45,8 +45,8 @@ ADS1115::ADS1115(uint8_t address = ADS1115_ADDRESS) :
  */
 void ADS1115::begin()
 {
-    // Wire.begin(); // should this be here ?
-    (void) this->readConfig();
+	// Wire.begin(); // should this be here ?
+	(void) this->readConfig();
 }
 
 /**
@@ -54,17 +54,17 @@ void ADS1115::begin()
  */
 bool ADS1115::isBusy()
 {
-    (void) this->readConfig();
-    if ((this->config & ADS1115_REG_CONFIG_MODE_MASK) != 0
-        && !((this->config & ADS1115_REG_CONFIG_OS_MASK) != 0))
-    {
-        // device is in power-down / single-shot mode
-        // and conversion is in progress
-        return true;
-    }
-    // device is either in continuous conversion mode
-    // or no conversion is in progress
-    return false;
+	(void) this->readConfig();
+	if ((this->config & ADS1115_REG_CONFIG_MODE_MASK) != 0
+		&& !((this->config & ADS1115_REG_CONFIG_OS_MASK) != 0))
+	{
+		// device is in power-down / single-shot mode
+		// and conversion is in progress
+		return true;
+	}
+	// device is either in continuous conversion mode
+	// or no conversion is in progress
+	return false;
 }
 
 /**
@@ -72,8 +72,8 @@ bool ADS1115::isBusy()
  */
 void ADS1115::startSingleConversion()
 {
-    this->config |= ADS1115_REG_CONFIG_OS_SINGLE;
-    this->writeConfig();
+	this->config |= ADS1115_REG_CONFIG_OS_SINGLE;
+	this->writeConfig();
 }
 
 /**
@@ -81,9 +81,9 @@ void ADS1115::startSingleConversion()
  */
 void ADS1115::startContinuousConversion()
 {
-    this->config &= ~ADS1115_REG_CONFIG_MODE_MASK; // clear the MODE bit
-    // this->config |= ADS1115_REG_CONFIG_MODE_CONTIN; // unnecessary
-    this->writeConfig();
+	this->config &= ~ADS1115_REG_CONFIG_MODE_MASK; // clear the MODE bit
+	// this->config |= ADS1115_REG_CONFIG_MODE_CONTIN; // unnecessary
+	this->writeConfig();
 }
 
 /**
@@ -95,11 +95,11 @@ void ADS1115::startContinuousConversion()
  */
 uint16_t ADS1115::readLastConversion()
 {
-    while (this->isBusy())
-    {
-        delay(1);
-    }
-    return readRegister(this->address, ADS1115_REG_POINTER_CONVERT);
+	while (this->isBusy())
+	{
+		delay(1);
+	}
+	return readRegister(this->address, ADS1115_REG_POINTER_CONVERT);
 }
 
 /**
@@ -107,8 +107,8 @@ uint16_t ADS1115::readLastConversion()
  */
 void ADS1115::setGain(adsGain_t gain)
 {
-    this->config &= ~ADS1115_REG_CONFIG_PGA_MASK; // clear the PGA bits
-    this->config |= (uint16_t)gain;
+	this->config &= ~ADS1115_REG_CONFIG_PGA_MASK; // clear the PGA bits
+	this->config |= (uint16_t)gain;
 }
 
 /**
@@ -116,7 +116,7 @@ void ADS1115::setGain(adsGain_t gain)
  */
 adsGain_t ADS1115::getGain()
 {
-    return (adsGain_t)(this->config & ADS1115_REG_CONFIG_PGA_MASK);
+	return (adsGain_t)(this->config & ADS1115_REG_CONFIG_PGA_MASK);
 }
 
 /**
@@ -124,8 +124,8 @@ adsGain_t ADS1115::getGain()
  */
 void ADS1115::setDataRate(adsDataRate_t rate)
 {
-    this->config &= ~ADS1115_REG_CONFIG_DR_MASK; // clear the DR bits
-    this->config |= (uint16_t)rate;
+	this->config &= ~ADS1115_REG_CONFIG_DR_MASK; // clear the DR bits
+	this->config |= (uint16_t)rate;
 }
 
 /**
@@ -133,7 +133,7 @@ void ADS1115::setDataRate(adsDataRate_t rate)
  */
 adsDataRate_t ADS1115::getDataRate(void)
 {
-    return (adsDataRate_t)(this->config & ADS1115_REG_CONFIG_DR_MASK);
+	return (adsDataRate_t)(this->config & ADS1115_REG_CONFIG_DR_MASK);
 }
 
 /**
@@ -141,8 +141,8 @@ adsDataRate_t ADS1115::getDataRate(void)
  */
 void ADS1115::setMux(adsMux_t mux)
 {
-    this->config &= ~ADS1115_REG_CONFIG_MUX_MASK; // clear the MUX bits
-    this->config |= (uint16_t)mux;
+	this->config &= ~ADS1115_REG_CONFIG_MUX_MASK; // clear the MUX bits
+	this->config |= (uint16_t)mux;
 }
 
 /**
@@ -150,7 +150,7 @@ void ADS1115::setMux(adsMux_t mux)
  */
 adsMux_t ADS1115::getMux(void)
 {
-    return (adsMux_t)(this->config & ADS1115_REG_CONFIG_MUX_MASK);
+	return (adsMux_t)(this->config & ADS1115_REG_CONFIG_MUX_MASK);
 }
 
 /**
@@ -158,13 +158,13 @@ adsMux_t ADS1115::getMux(void)
  */
 void ADS1115::writeConfig()
 {
-    writeRegister(this->address, ADS1115_REG_POINTER_CONFIG, this->config);
+	writeRegister(this->address, ADS1115_REG_POINTER_CONFIG, this->config);
 }
 
 void ADS1115::writeConfig(uint16_t config)
 {
-    this->config = config;
-    writeRegister(this->address, ADS1115_REG_POINTER_CONFIG, this->config);
+	this->config = config;
+	writeRegister(this->address, ADS1115_REG_POINTER_CONFIG, this->config);
 }
 
 /**
@@ -172,6 +172,6 @@ void ADS1115::writeConfig(uint16_t config)
  */
 uint16_t ADS1115::readConfig()
 {
-    this->config = readRegister(this->address, ADS1115_REG_POINTER_CONFIG);
-    return this->config;
+	this->config = readRegister(this->address, ADS1115_REG_POINTER_CONFIG);
+	return this->config;
 }

@@ -87,63 +87,63 @@
 
 typedef enum
 {
-    GAIN_TWOTHIRDS    = ADS1115_REG_CONFIG_PGA_6_144V,
-    GAIN_ONE          = ADS1115_REG_CONFIG_PGA_4_096V,
-    GAIN_TWO          = ADS1115_REG_CONFIG_PGA_2_048V,
-    GAIN_FOUR         = ADS1115_REG_CONFIG_PGA_1_024V,
-    GAIN_EIGHT        = ADS1115_REG_CONFIG_PGA_0_512V,
-    GAIN_SIXTEEN      = ADS1115_REG_CONFIG_PGA_0_256V
+	GAIN_TWOTHIRDS = ADS1115_REG_CONFIG_PGA_6_144V,
+	GAIN_ONE       = ADS1115_REG_CONFIG_PGA_4_096V,
+	GAIN_TWO       = ADS1115_REG_CONFIG_PGA_2_048V,
+	GAIN_FOUR      = ADS1115_REG_CONFIG_PGA_1_024V,
+	GAIN_EIGHT     = ADS1115_REG_CONFIG_PGA_0_512V,
+	GAIN_SIXTEEN   = ADS1115_REG_CONFIG_PGA_0_256V
 } adsGain_t;
 
 
 typedef enum
 {
-    DR_8SPS			= ADS1115_REG_CONFIG_DR_8SPS,
-	DR_16SPS		= ADS1115_REG_CONFIG_DR_16SPS,
-	DR_32SPS		= ADS1115_REG_CONFIG_DR_32SPS,
-	DR_64SPS		= ADS1115_REG_CONFIG_DR_64SPS,
-	DR_128SPS		= ADS1115_REG_CONFIG_DR_128SPS,
-	DR_250SPS		= ADS1115_REG_CONFIG_DR_250SPS,
-	DR_475SPS		= ADS1115_REG_CONFIG_DR_475SPS,
-	DR_860SPS		= ADS1115_REG_CONFIG_DR_860SPS
+	DR_8SPS		   = ADS1115_REG_CONFIG_DR_8SPS,
+	DR_16SPS	   = ADS1115_REG_CONFIG_DR_16SPS,
+	DR_32SPS	   = ADS1115_REG_CONFIG_DR_32SPS,
+	DR_64SPS	   = ADS1115_REG_CONFIG_DR_64SPS,
+	DR_128SPS	   = ADS1115_REG_CONFIG_DR_128SPS,
+	DR_250SPS	   = ADS1115_REG_CONFIG_DR_250SPS,
+	DR_475SPS	   = ADS1115_REG_CONFIG_DR_475SPS,
+	DR_860SPS	   = ADS1115_REG_CONFIG_DR_860SPS
 } adsDataRate_t;
 
 
 typedef enum {
-    MUX_DIFF_0_1 = ADS1115_REG_CONFIG_MUX_DIFF_0_1,
-    MUX_DIFF_0_3 = ADS1115_REG_CONFIG_MUX_DIFF_0_3,
-    MUX_DIFF_1_3 = ADS1115_REG_CONFIG_MUX_DIFF_1_3,
-    MUX_DIFF_2_3 = ADS1115_REG_CONFIG_MUX_DIFF_2_3,
-    MUX_SINGLE_3 = ADS1115_REG_CONFIG_MUX_SINGLE_0,
-    MUX_SINGLE_0 = ADS1115_REG_CONFIG_MUX_SINGLE_1,
-    MUX_SINGLE_1 = ADS1115_REG_CONFIG_MUX_SINGLE_2,
-    MUX_SINGLE_2 = ADS1115_REG_CONFIG_MUX_SINGLE_3,
+	MUX_DIFF_0_1   = ADS1115_REG_CONFIG_MUX_DIFF_0_1,
+	MUX_DIFF_0_3   = ADS1115_REG_CONFIG_MUX_DIFF_0_3,
+	MUX_DIFF_1_3   = ADS1115_REG_CONFIG_MUX_DIFF_1_3,
+	MUX_DIFF_2_3   = ADS1115_REG_CONFIG_MUX_DIFF_2_3,
+	MUX_SINGLE_3   = ADS1115_REG_CONFIG_MUX_SINGLE_0,
+	MUX_SINGLE_0   = ADS1115_REG_CONFIG_MUX_SINGLE_1,
+	MUX_SINGLE_1   = ADS1115_REG_CONFIG_MUX_SINGLE_2,
+	MUX_SINGLE_2   = ADS1115_REG_CONFIG_MUX_SINGLE_3,
 } adsMux_t;
 
 
 class ADS1115
 {
 public:
-    ADS1115(uint8_t address =  ADS1115_ADDRESS);
-    
-    void      begin(void);
-    bool      isBusy(void);
-    void      startSingleConversion(void);
-    void      startContinuousConversion(void);
-    uint16_t  readLastConversion(void);
-    void      setGain(adsGain_t gain);
-    adsGain_t getGain(void);
-    void      setDataRate(adsDataRate_t rate);
-    adsDataRate_t getDataRate(void);
-    void      setMux(adsMux_t mux);
-    adsMux_t  getMux(void);
-    void      writeConfig(void);
-    void      writeConfig(uint16_t config);
-    uint16_t  readConfig(void);
+	ADS1115(uint8_t address =  ADS1115_ADDRESS);
+	
+	void      begin(void);
+	bool      isBusy(void);
+	void      startSingleConversion(void);
+	void      startContinuousConversion(void);
+	uint16_t  readLastConversion(void);
+	void      setGain(adsGain_t gain);
+	adsGain_t getGain(void);
+	void      setDataRate(adsDataRate_t rate);
+	adsDataRate_t getDataRate(void);
+	void      setMux(adsMux_t mux);
+	adsMux_t  getMux(void);
+	void      writeConfig(void);
+	void      writeConfig(uint16_t config);
+	uint16_t  readConfig(void);
 
 private:
-    uint8_t   address;
-    uint16_t  config;
+	uint8_t   address;
+	uint16_t  config;
 };
 
 
