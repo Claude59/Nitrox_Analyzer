@@ -91,15 +91,15 @@ void ADS1115::startContinuousConversion()
  * 
  * Wait until conversion is complete if ADC is in single-shot and conversion is in progress
  * 
- * WARNING: result must be converted to signed (int16_t) if ADC is used in differential mode <<< VERIFY
+ * WARNING: result must be converted to signed (int16_t)
  */
-uint16_t ADS1115::readLastConversion()
+int16_t ADS1115::readLastConversion()
 {
 	while (this->isBusy())
 	{
 		delay(1);
 	}
-	return readRegister(this->address, ADS1115_REG_POINTER_CONVERT);
+	return (int16_t)readRegister(this->address, ADS1115_REG_POINTER_CONVERT);
 }
 
 /**

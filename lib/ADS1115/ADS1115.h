@@ -130,7 +130,7 @@ public:
 	bool      isBusy(void);
 	void      startSingleConversion(void);
 	void      startContinuousConversion(void);
-	uint16_t  readLastConversion(void);
+	int16_t   readLastConversion(void);
 	void      setGain(adsGain_t gain);
 	adsGain_t getGain(void);
 	void      setDataRate(adsDataRate_t rate);
