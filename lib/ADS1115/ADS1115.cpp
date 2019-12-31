@@ -137,6 +137,23 @@ adsDataRate_t ADS1115::getDataRate(void)
 }
 
 /**
+ * Set Mux
+ */
+void ADS1115::setMux(adsMux_t mux)
+{
+    this->config &= ~ADS1115_REG_CONFIG_MUX_MASK; // clear the MUX bits
+    this->config |= (uint16_t)mux;
+}
+
+/**
+ * Get Mux
+ */
+adsMux_t ADS1115::getMux(void)
+{
+    return (adsMux_t)(this->config & ADS1115_REG_CONFIG_MUX_MASK);
+}
+
+/**
  * write the CONFIG register
  */
 void ADS1115::writeConfig()

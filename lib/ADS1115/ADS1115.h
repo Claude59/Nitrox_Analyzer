@@ -109,6 +109,18 @@ typedef enum
 } adsDataRate_t;
 
 
+typedef enum {
+    MUX_DIFF_0_1 = ADS1115_REG_CONFIG_MUX_DIFF_0_1,
+    MUX_DIFF_0_3 = ADS1115_REG_CONFIG_MUX_DIFF_0_3,
+    MUX_DIFF_1_3 = ADS1115_REG_CONFIG_MUX_DIFF_1_3,
+    MUX_DIFF_2_3 = ADS1115_REG_CONFIG_MUX_DIFF_2_3,
+    MUX_SINGLE_3 = ADS1115_REG_CONFIG_MUX_SINGLE_0,
+    MUX_SINGLE_0 = ADS1115_REG_CONFIG_MUX_SINGLE_1,
+    MUX_SINGLE_1 = ADS1115_REG_CONFIG_MUX_SINGLE_2,
+    MUX_SINGLE_2 = ADS1115_REG_CONFIG_MUX_SINGLE_3,
+} adsMux_t;
+
+
 class ADS1115
 {
 public:
@@ -123,6 +135,8 @@ public:
     adsGain_t getGain(void);
     void      setDataRate(adsDataRate_t rate);
     adsDataRate_t getDataRate(void);
+    void      setMux(adsMux_t mux);
+    adsMux_t  getMux(void);
     void      writeConfig(void);
     void      writeConfig(uint16_t config);
     uint16_t  readConfig(void);
