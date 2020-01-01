@@ -6,6 +6,9 @@
 #include <TimerOne.h>
 #include <Wire.h>
 
+#include "scuba.h"
+#include "state.h"
+
 // LCD
 // U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0); // 128 bytes framebuffer
 U8G2_SH1106_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0); // 256 bytes framebuffer
@@ -29,6 +32,53 @@ void timerIsr()
 	encoder.service();
 }
 
+// STATE MACHINE
+state_t state;
+
+
+// DISPLAY
+struct display_data {
+	uint8_t mode;
+	char mainStr;
+	char footStr;
+};
+
+void display_render()
+{
+	u8g2.firstPage();
+	do {
+		switch(state) {
+		case STATE_ANALYZE:
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.setCursor(0,10);
+			u8g2.print(F("Analyzing"));
+//			u8g2.setFont(u8g2_font_inb30_mn);
+			u8g2.setFont(u8g2_font_logisoso30_tn);
+			u8g2.drawStr(0,44,"10.95");
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.drawStr(0,63,"pO2 1.6 / MOD 55m");
+			break;
+		case STATE_CALIBRATE_MENU:
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.setCursor(0,10);
+			u8g2.print(F("Calibrate ?"));
+			u8g2.setFont(u8g2_font_logisoso30_tn);
+			u8g2.drawStr(0,44,"69.95");
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.drawStr(0,63,"YES - NO");
+			break;
+		case STATE_CALIBRATE:
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.setCursor(0,10);
+			u8g2.print(F("Calibrate"));
+			break;
+		default: 
+			;
+		}
+	} while ( u8g2.nextPage() );
+}
+
+
 void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
@@ -41,6 +91,13 @@ void setup()
 	ads.begin();
 	Serial.print("ADS config: ");
 	Serial.println(ads.readConfig());
+	ads.setGain(GAIN_EIGHT);
+	ads.setDataRate(DR_16SPS);
+	ads.setMux(MUX_DIFF_0_1);
+	ads.writeConfig();
+	Serial.print("ADS config: ");
+	Serial.println(ads.readConfig());
+	ads.startContinuousConversion();
 
 	Timer1.initialize(1000);
 	Timer1.attachInterrupt(timerIsr);
@@ -94,7 +151,10 @@ void loop()
 			break;
 
 			case ClickEncoder::Clicked:       //5
-			break;
+				// display_update = true;
+				Serial.print("ADC reading:");
+				Serial.println(ads.readLastConversion());
+				break;
 
 			case ClickEncoder::DoubleClicked: //6
 			break;
