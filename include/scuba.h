@@ -14,6 +14,6 @@
  *                e.g. 1,6bar -> pO2_max = 1600
  * @return MOD in cm
  */
-uint16_t calc_mod(uint16_t fO2, uint16_t pO2_max = 1600);
+uint16_t calc_mod(uint16_t fO2, uint16_t pO2_max = 1600u);
 
 #endif // _SCUBA_H_
