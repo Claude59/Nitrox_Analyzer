@@ -1,35 +1,38 @@
 #include <RollingAverage.h>
 
+RollingAverage::RollingAverage() {
+	size = 0;
+}
+
 RollingAverage::RollingAverage(uint8_t s) {
 	size = s;
-	values = (int16_t*) malloc(size * sizeof(int16_t));
-	if (values == NULL) size = 0;
+	readings = (int16_t*) malloc(size * sizeof(int16_t));
+	if (readings == NULL) size = 0;
 }
 
-void RollingAverage::init() {
-	sum = 0;
+void RollingAverage::begin() {
 	for (uint8_t i; i < size; i++) {
-		values[i] = 0;
+		readings[i] = 0;
 	}
+	sum = 0;
 	index = 0;
-	n_values = 0;
+	n_readings = 0;
 }
 
-void RollingAverage::addValue(int16_t value) {
-	if (n_values < size) {
-		n_values++;
+void RollingAverage::addReading(int16_t value) {
+	if (n_readings < size) {
+		n_readings++;
 		sum += value;
 	}
 	else {
-		sum = sum - values[index] + value;
+		sum = sum - readings[index] + value;
 	}
 
-	values[index] = value;
+	readings[index] = value;
 	index = (index == size - 1) ? 0 : index + 1;
 }
 
 int16_t RollingAverage::getAverage() {
-//	return (int16_t)((sum + n_values / 2) / n_values);	// using (+ n_values / 2) reduce truncation errors by rounding
-														// only useful if n_values is large and values are relatively small
-	return (int16_t)(sum / n_values);	
+	if (n_readings == 0) return 0;
+	return (int16_t)(sum / n_readings);	
 }

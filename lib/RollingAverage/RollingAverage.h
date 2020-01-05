@@ -5,20 +5,20 @@
 
 class RollingAverage {
 public:
-    RollingAverage();
-    RollingAverage(uint8_t size);
-    void init();
+	RollingAverage();
+	RollingAverage(uint8_t size);
+	void begin();
 
 public:
-    void addValue(int16_t value);
-    int16_t getAverage();
+	void addReading(int16_t value);
+	int16_t getAverage();
 
 private:
-    uint8_t size;
-    uint8_t index;
-    uint8_t n_values;
-    int16_t* values;
-    int32_t sum;
+	uint8_t size;
+	uint8_t index;
+	uint8_t n_readings;
+	int16_t* readings;
+	int32_t sum;
 };
 
 #endif // _ROLLING_AVERAGE_H_
