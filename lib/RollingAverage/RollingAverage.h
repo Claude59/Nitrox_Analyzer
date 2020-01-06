@@ -7,6 +7,7 @@ class RollingAverage {
 public:
 	RollingAverage();
 	RollingAverage(uint8_t size);
+	RollingAverage(uint8_t size, int16_t* readings);
 	void begin();
 
 public:

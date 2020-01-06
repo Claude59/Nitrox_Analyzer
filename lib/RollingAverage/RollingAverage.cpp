@@ -10,6 +10,12 @@ RollingAverage::RollingAverage(uint8_t s) {
 	if (readings == NULL) size = 0;
 }
 
+RollingAverage::RollingAverage(uint8_t s, int16_t* r) {
+	size = s;
+	readings = r;
+	if (readings == NULL) size = 0;
+}
+
 void RollingAverage::begin() {
 	for (uint8_t i; i < size; i++) {
 		readings[i] = 0;
