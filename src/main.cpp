@@ -54,7 +54,7 @@ uint32_t batteryTimer = 0;
 
 // OTHER
 int16_t batteryVoltage = 0;
-int32_t calibrationFactor = 0;
+int16_t calibrationFactor = 0; // unit is [1e-1 µV / %], value should be ~5000
 
 void renderDisplay()
 {
@@ -110,8 +110,12 @@ void renderDisplay()
 			break;
 		case STATE_CALIBRATE:
 			u8g2.setFont(u8g2_font_6x13_tr);
-			u8g2.setCursor(0,10);
-			u8g2.print(F("Calibration in progress"));
+			u8g2.setCursor(30,10);
+			u8g2.print(F("Calibration"));
+			u8g2.setCursor(30,20);
+			u8g2.print(F("in progress"));
+			u8g2.setCursor(21,40);
+			u8g2.print(F("Please wait..."));
 			break;
 		default: 
 			;
@@ -155,6 +159,8 @@ void setup()
 	stateCalibMenu = NO;
 	displayTimer = millis();
 	batteryTimer = -BATTERY_INTERVAL; // force initial reading
+	// Load last calibration factor
+	// EEPROM.get(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
 }
 
 void loop()
@@ -242,13 +248,16 @@ void loop()
 		case STATE_CALIBRATE:
 			// TODO: handle input
 			if (millis() - calibrateTimer >= CALIBRATION_TIME) {
+				// TODO: check calibration sample quality (e.g. max deviation)
+				// 7812 is ADS resolution in [nV / LSB] at PGA = 16
+				// 2095 is calibration oxygen concentration (20.95% in air)
 				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
-				int16_t calibrationResult = (int16_t)((sensorMicroVolts * 1000L) / 2095L);
+				calibrationFactor = (int16_t)((sensorMicroVolts * 1000L) / 2095L);
 				// EEPROM.put(EEPROM_CALIBRATION_ADDRESS, calibrationResult);
 #ifdef DEBUG
 				Serial.println("Calibration complete:");
 				Serial.print(sensorMicroVolts); Serial.println(" µV");
-				Serial.println(calibrationResult);
+				Serial.println(calibrationFactor);
 #endif
 				state = STATE_ANALYZE;
 				updateDisplay = true;
