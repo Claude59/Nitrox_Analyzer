@@ -55,6 +55,7 @@ uint32_t batteryTimer = 0;
 // OTHER
 int16_t batteryVoltage = 0;
 int16_t calibrationFactor = 0; // unit is [1e-1 µV / %], value should be ~5000
+int16_t oxygenConcentration = 0;
 
 void renderDisplay()
 {
@@ -220,6 +221,9 @@ void loop()
 				break;
 			}
 			if (millis() - displayTimer >= DISPLAY_REFRESH_RATE) {
+				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
+				oxygenConcentration = (int16_t)((sensorMicroVolts * 1000L) / calibrationFactor);
+				// TODO: calculate MOD
 				updateDisplay = true;
 				displayTimer = millis();
 			}
@@ -290,6 +294,7 @@ void loop()
 				Serial.print("ADC reading:");
 				//Serial.println(ads.readLastConversion());
 				Serial.println(readings.getAverage());
+				Serial.print("O2 concentration:"); Serial.println(oxygenConcentration);
 				break;
 
 			case ClickEncoder::DoubleClicked: //6
