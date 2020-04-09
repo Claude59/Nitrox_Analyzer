@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include <ADS1115.h>
 #include <ClickEncoder.h>
 #include <U8g2lib.h>
 #include <TimerOne.h>
@@ -8,6 +9,9 @@
 // LCD
 // U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0); // 128 bytes framebuffer
 U8G2_SH1106_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0); // 256 bytes framebuffer
+
+// ADC
+ADS1115 ads;
 
 // ENCODER
 #define ENC_PIN_A 10
@@ -29,9 +33,15 @@ void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(19200);
-	lcd.begin();
-	lcd.setFont(u8g2_font_6x13_tr);
+	Wire.begin();
+
+	u8g2.begin();
+	u8g2.setFont(u8g2_font_6x13_tr);
 	
+	ads.begin();
+	Serial.print("ADS config: ");
+	Serial.println(ads.readConfig());
+
 	Timer1.initialize(1000);
 	Timer1.attachInterrupt(timerIsr);
 
