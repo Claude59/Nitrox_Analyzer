@@ -6,7 +6,8 @@
 #include <Wire.h>
 
 // LCD
-U8G2_SH1106_128X64_NONAME_1_HW_I2C lcd(U8G2_R0);
+// U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0); // 128 bytes framebuffer
+U8G2_SH1106_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0); // 256 bytes framebuffer
 
 // ENCODER
 #define ENC_PIN_A 10
