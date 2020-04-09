@@ -16,7 +16,7 @@ enum state_ppo2_t {
 	MV,
 };
 
-enum state_yes_no_t {
+enum state_dialog_t {
 	YES,
 	NO,
 };

@@ -2,6 +2,7 @@
 
 #include <ADS1115.h>
 #include <ClickEncoder.h>
+#include <EEPROM.h>
 #include <RollingAverage.h>
 #include <U8g2lib.h>
 #include <TimerOne.h>
@@ -23,14 +24,15 @@ int16_t readingsBuffer[SAMPLE_SIZE];
 RollingAverage readings(SAMPLE_SIZE, readingsBuffer);
 
 // ENCODER
-#define ENC_PIN_A 10
-#define ENC_PIN_B 11
-#define ENC_PIN_SW 12
+#define ENC_PIN_A 2
+#define ENC_PIN_B 3
+#define ENC_PIN_SW 4
 #define ENC_STEPS 4
 
 ClickEncoder encoder(ENC_PIN_A, ENC_PIN_B, ENC_PIN_SW, ENC_STEPS);
 
-int16_t encPosPrevious, encPos;
+int16_t encPosPrev, encPos;
+int8_t encDelta;
 uint8_t buttonState;
 
 void timerIsr()
@@ -40,49 +42,76 @@ void timerIsr()
 
 // BUZZER
 
-#define BUZZER_PIN	7
+#define BUZZER_PIN	8
 
 // STATE MACHINE
 state_t state;
-uint32_t millisDisplayPrevious;
-uint32_t millisAnalyzePrevious;
+state_dialog_t stateCalibMenu;
+uint32_t displayTimer = 0;
+uint32_t analyzeTimer = 0;
+uint32_t calibrateTimer = 0;
+uint32_t batteryTimer = 0;
 
-
-// DISPLAY
-struct display_data {
-	uint8_t mode;
-	char mainStr;
-	char footStr;
-};
+// OTHER
+int16_t batteryVoltage = 0;
+int32_t calibrationFactor = 0;
 
 void renderDisplay()
 {
 	u8g2.firstPage();
 	do {
 		switch(state) {
+		case STATE_START_SCREEN:
+			// TODO: Add Graphics ?
+			u8g2.setFont(u8g2_font_6x13_tr);
+			u8g2.setCursor(0,10);
+			u8g2.print(F("Nitrox Analyzer"));
+			u8g2.setCursor(0,20);
+			u8g2.print(F("Starting..."));
+			u8g2.setCursor(0,63);
+			u8g2.print(F("Battery: "));
+			u8g2.print(batteryVoltage/1000);
+			u8g2.print(".");
+			u8g2.print((batteryVoltage % 1000) / 10);
+			u8g2.print("V");
+			break;
 		case STATE_ANALYZE:
 			u8g2.setFont(u8g2_font_6x13_tr);
 			u8g2.setCursor(0,10);
 			u8g2.print(F("Analyzing"));
 //			u8g2.setFont(u8g2_font_inb30_mn);
 			u8g2.setFont(u8g2_font_logisoso30_tn);
-			u8g2.drawStr(0,44,"10.95");
+			u8g2.drawStr(0,44,"00.00");
 			u8g2.setFont(u8g2_font_6x13_tr);
-			u8g2.drawStr(0,63,"pO2 1.6 / MOD 55m");
+			u8g2.drawStr(0,63,"pO2 1.6 > MOD 55m");
 			break;
 		case STATE_CALIBRATE_MENU:
 			u8g2.setFont(u8g2_font_6x13_tr);
 			u8g2.setCursor(0,10);
 			u8g2.print(F("Calibrate ?"));
 			u8g2.setFont(u8g2_font_logisoso30_tn);
-			u8g2.drawStr(0,44,"69.95");
+			u8g2.drawStr(0,44,"20.95");
 			u8g2.setFont(u8g2_font_6x13_tr);
-			u8g2.drawStr(0,63,"YES - NO");
+			if (stateCalibMenu == YES) {
+				u8g2.drawBox(0,53,64,10);
+			}
+			else {
+				u8g2.drawBox(63,53,64,10);
+			}
+			u8g2.setFontMode(1); // transparent background
+			u8g2.setDrawColor(2); // XOR
+			u8g2.setCursor(24,63);
+			u8g2.print(F("YES"));
+			u8g2.setCursor(90,63);
+			u8g2.print(F("NO"));
+			// reset drawing modes
+			u8g2.setFontMode(0);
+			u8g2.setDrawColor(1);
 			break;
 		case STATE_CALIBRATE:
 			u8g2.setFont(u8g2_font_6x13_tr);
 			u8g2.setCursor(0,10);
-			u8g2.print(F("Calibrate"));
+			u8g2.print(F("Calibration in progress"));
 			break;
 		default: 
 			;
@@ -93,22 +122,24 @@ void renderDisplay()
 
 void setup()
 {
-	pinMode(LED_BUILTIN, OUTPUT);
+#ifdef DEBUG
 	Serial.begin(19200);
+	Serial.println("*\n* Nitrox Analyser - DEBUG\n*");
+#endif
 	Wire.begin();
 
 	u8g2.begin();
 	u8g2.setFont(u8g2_font_6x13_tr);
 	
 	ads.begin();
-//	Serial.print("ADS config: ");
-//	Serial.println(ads.readConfig());
-	ads.setGain(GAIN_SIXTEEN); // +/- 256mV FSR = 7µV resolution
+	ads.setGain(GAIN_SIXTEEN); // +/- 256mV FSR = 7.812µV resolution
 	ads.setDataRate(DR_16SPS); // 16 sps
 	ads.setMux(MUX_DIFF_0_1);  // sensor is connected between AIN0 (P) and AIN1 (N)
 	ads.writeConfig();
-//	Serial.print("ADS config: ");
-//	Serial.println(ads.readConfig());
+#ifdef DEBUG
+	Serial.print("ADS config: ");
+	Serial.println(ads.readConfig());
+#endif
 	ads.startContinuousConversion();
 
 	readings.begin();
@@ -116,16 +147,14 @@ void setup()
 	Timer1.initialize(1000);
 	Timer1.attachInterrupt(timerIsr);
 
-	encoder.setAccelerationEnabled(true);
+	// initialize variables
 
-//	Serial.print("Acceleration is ");
-//	Serial.println((encoder.getAccelerationEnabled()) ? "enabled" : "disabled");
-
-	encPosPrevious = encPos;
-
-	state = STATE_ANALYZE;
-	millisDisplayPrevious = millis();
-	millisAnalyzePrevious = millis();
+	encPosPrev = encPos;
+	//state = STATE_ANALYZE;
+	state = STATE_START_SCREEN;
+	stateCalibMenu = NO;
+	displayTimer = millis();
+	batteryTimer = -BATTERY_INTERVAL; // force initial reading
 }
 
 void loop()
@@ -135,57 +164,102 @@ void loop()
 	// Handle inputs
 	buttonState = encoder.getButton();
 	encPos += encoder.getValue();
-	if (encPos != encPosPrevious) {
-		// Serial.print("Encoder Value: ");
-		// Serial.println(encPos);
-
-		if (encPos > encPosPrevious) {
-			//engine->navigate(engine->getNext());
-		}
-		else {
-			//engine->navigate(engine->getPrev());
-		}
-		// updateDisplay = true;
-
-		encPosPrevious = encPos;
+	encDelta = encPos - encPosPrev;
+	encPosPrev = encPos;
+#ifdef DEBUG
+	if (buttonState != 0) {
+		Serial.print("Button: "); Serial.println(buttonState);
 	}
+	if (encDelta != 0) {
+		Serial.print("Encoder: "); Serial.println(encDelta);
+	}
+#endif
 
 	// ADC readings
-	if (millis() - millisAnalyzePrevious >= ANALYZE_INTERVAL) {
+	if (millis() - analyzeTimer >= ANALYZE_INTERVAL) {
 		readings.addReading(ads.readLastConversion());
-		millisAnalyzePrevious = millis();
+		analyzeTimer = millis();
+	}
+
+	// Battery
+	if (millis() - batteryTimer >= BATTERY_INTERVAL) {
+		batteryVoltage = analogRead(A0);
+		// convert ADC reading to mV
+		// ref = 3.3V -> mV = adc * 100 / 31
+		// + factor 2 from divider
+		batteryVoltage *= (10 * 2);
+		batteryVoltage /= 31;
+		batteryVoltage *= 10;
+#ifdef DEBUG
+		Serial.print("Battery: "); Serial.println(batteryVoltage);
+#endif
+		batteryTimer = millis();
 	}
 
 	// State machine
 	switch (state) {
 		case STATE_START_SCREEN:
-			if (millis() - millisDisplayPrevious >= SPLASH_DELAY) {
+			if (millis() - displayTimer >= SPLASH_DELAY) {
 				state = STATE_ANALYZE;
 				updateDisplay = true;
-				millisDisplayPrevious = millis();
+				displayTimer = millis();
 			}
 			break;
 		case STATE_ANALYZE:
 			// handle input
-			if (millis() - millisDisplayPrevious >= DISPLAY_REFRESH_RATE) {
+			if (buttonState == ClickEncoder::Held) {
+				state = STATE_CALIBRATE_MENU;
+				stateCalibMenu = YES;
 				updateDisplay = true;
-				millisDisplayPrevious = millis();
+				break;
+			}
+			if (millis() - displayTimer >= DISPLAY_REFRESH_RATE) {
+				updateDisplay = true;
+				displayTimer = millis();
 			}
 			break;
 		case STATE_CALIBRATE_MENU:
-			//
+			if (encDelta != 0) {
+				if (encDelta > 0) {
+					stateCalibMenu = NO;
+				}
+				else if (encDelta < 0) {
+					stateCalibMenu = YES;
+				}
+				updateDisplay = true;
+			}
+			if (buttonState == ClickEncoder::Clicked) {
+				if (stateCalibMenu == YES) {
+					state = STATE_CALIBRATE;
+					calibrateTimer = millis();
+				}
+				else {
+					state = STATE_ANALYZE;
+				}
+				updateDisplay = true;
+			} 
 			break;
 		case STATE_CALIBRATE:
-			// handle input
-			// wait
+			// TODO: handle input
+			if (millis() - calibrateTimer >= CALIBRATION_TIME) {
+				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
+				int16_t calibrationResult = (int16_t)((sensorMicroVolts * 1000L) / 2095L);
+				// EEPROM.put(EEPROM_CALIBRATION_ADDRESS, calibrationResult);
+#ifdef DEBUG
+				Serial.println("Calibration complete:");
+				Serial.print(sensorMicroVolts); Serial.println(" µV");
+				Serial.println(calibrationResult);
+#endif
+				state = STATE_ANALYZE;
+				updateDisplay = true;
+			}
 			// render
 			break;
 	}
 
 
-
+#ifdef DEBUG
 	if (buttonState != 0) {
-		Serial.print("Button: "); Serial.println(buttonState);
 		switch (buttonState) {
 			case ClickEncoder::Open:          //0
 			break;
@@ -205,7 +279,8 @@ void loop()
 			case ClickEncoder::Clicked:       //5
 				// updateDisplay = true;
 				Serial.print("ADC reading:");
-				Serial.println(ads.readLastConversion());
+				//Serial.println(ads.readLastConversion());
+				Serial.println(readings.getAverage());
 				break;
 
 			case ClickEncoder::DoubleClicked: //6
@@ -213,6 +288,7 @@ void loop()
 				break;
 		}
 	}
+#endif
 
 	if (updateDisplay) {
 		renderDisplay();
