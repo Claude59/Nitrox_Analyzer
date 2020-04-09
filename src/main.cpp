@@ -24,11 +24,6 @@ int16_t readingsBuffer[SAMPLE_SIZE];
 RollingAverage readings(SAMPLE_SIZE, readingsBuffer);
 
 // ENCODER
-#define ENC_PIN_A 2
-#define ENC_PIN_B 3
-#define ENC_PIN_SW 4
-#define ENC_STEPS 4
-
 ClickEncoder encoder(ENC_PIN_A, ENC_PIN_B, ENC_PIN_SW, ENC_STEPS);
 
 int16_t encPosPrev, encPos;
@@ -39,10 +34,6 @@ void timerIsr()
 {
 	encoder.service();
 }
-
-// BUZZER
-
-#define BUZZER_PIN	8
 
 // STATE MACHINE
 state_t state;

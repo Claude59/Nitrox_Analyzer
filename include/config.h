@@ -11,4 +11,13 @@
 
 #define EEPROM_CALIBRATION_ADDRESS 0
 
+// ENCODER
+#define ENC_PIN_A   2
+#define ENC_PIN_B   3
+#define ENC_PIN_SW  4
+#define ENC_STEPS   4
+
+// BUZZER
+#define BUZZER_PIN	8
+
 #endif // _CONFIG_H_
