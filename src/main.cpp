@@ -47,6 +47,7 @@ void timerIsr()
 // STATE MACHINE
 state_t state;
 state_dialog_t stateCalibMenu;
+state_ppo2_t stateModDisplay;
 uint32_t displayTimer = 0;
 uint32_t analyzeTimer = 0;
 uint32_t calibrateTimer = 0;
@@ -56,6 +57,7 @@ uint32_t batteryTimer = 0;
 int16_t batteryVoltage = 0;
 int16_t calibrationFactor = 0; // unit is [1e-1 µV / %], value should be ~5000
 int16_t oxygenConcentration = 0;
+char displayFooterBuffer[24];
 
 void renderDisplay()
 {
@@ -82,16 +84,28 @@ void renderDisplay()
 			u8g2.print(F("Analyzing"));
 //			u8g2.setFont(u8g2_font_inb30_mn);
 			u8g2.setFont(u8g2_font_logisoso30_tn);
-			u8g2.drawStr(0,44,"00.00");
+			u8g2.setCursor(20,48);
+			// print O2 as a decimal percentage
+			if ((oxygenConcentration / 100) < 10) {
+				u8g2.print("0");
+			}			
+			u8g2.print(oxygenConcentration / 100);
+			u8g2.print(".");
+			if ((oxygenConcentration % 100) < 10) {
+				u8g2.print("0");
+			}
+			u8g2.println(oxygenConcentration % 100);
+			// print MOD
 			u8g2.setFont(u8g2_font_6x13_tr);
-			u8g2.drawStr(0,63,"pO2 1.6 > MOD 55m");
+			//u8g2.drawStr(0,63,"pO2 1.6 > MOD 55m");
+			u8g2.drawStr(0,63,displayFooterBuffer);
 			break;
 		case STATE_CALIBRATE_MENU:
 			u8g2.setFont(u8g2_font_6x13_tr);
 			u8g2.setCursor(0,10);
 			u8g2.print(F("Calibrate ?"));
 			u8g2.setFont(u8g2_font_logisoso30_tn);
-			u8g2.drawStr(0,44,"20.95");
+			u8g2.drawStr(20,48,"20.95");
 			u8g2.setFont(u8g2_font_6x13_tr);
 			if (stateCalibMenu == YES) {
 				u8g2.drawBox(0,53,64,10);
@@ -153,13 +167,12 @@ void setup()
 	Timer1.attachInterrupt(timerIsr);
 
 	// initialize variables
-
 	encPosPrev = encPos;
-	//state = STATE_ANALYZE;
 	state = STATE_START_SCREEN;
 	stateCalibMenu = NO;
-	displayTimer = millis();
-	batteryTimer = -BATTERY_INTERVAL; // force initial reading
+	stateModDisplay = PPO2_1_6;
+	displayTimer = millis();			// initialize for splash screen
+	batteryTimer = -BATTERY_INTERVAL; 	// force initial reading
 	// Load last calibration factor
 	// EEPROM.get(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
 }
@@ -220,10 +233,55 @@ void loop()
 				updateDisplay = true;
 				break;
 			}
+			if (encDelta != 0) {
+				if (encDelta > 0) {
+					stateModDisplay++;
+				}
+				else if (encDelta < 0) {
+					stateModDisplay--;
+				}
+			}
 			if (millis() - displayTimer >= DISPLAY_REFRESH_RATE) {
 				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
+				if (sensorMicroVolts <= 0) {
+					// TODO: ERROR BAD SENSOR
+					// adjust threshold ? ex. 5mV ?
+				}
 				oxygenConcentration = (int16_t)((sensorMicroVolts * 1000L) / calibrationFactor);
+				if (oxygenConcentration < 0) {
+					// TODO: ask for calibration
+					oxygenConcentration = 0;
+				}
+				else if (oxygenConcentration > 10200) {
+					// TODO: ERROR MODE
+				}
 				// TODO: calculate MOD
+				uint16_t pO2_max, mod;
+				if (stateModDisplay == MV) {
+					sprintf_P(displayFooterBuffer, PSTR("Sensor: %d.%02d mV"), 
+						(int16_t)(sensorMicroVolts / 1000L),
+						(int8_t)((sensorMicroVolts % 1000L) / 10));
+				}
+				else {
+					switch(stateModDisplay) {
+					case PPO2_1_4:
+						pO2_max = 1400;
+						break;
+					case PPO2_1_5:
+						pO2_max = 1500;
+						break;
+					case PPO2_1_6:
+						pO2_max = 1600;
+						break;
+					default:
+						pO2_max = 1000; // you should not be here...
+					}
+					mod = calc_mod(oxygenConcentration, pO2_max);
+					sprintf_P(displayFooterBuffer, PSTR("pO2 %d.%d > MOD %dm"),
+						(uint8_t)(pO2_max / 1000),
+						(uint8_t)((pO2_max % 1000) / 100),
+						(uint8_t)(mod / 100) );
+				}
 				updateDisplay = true;
 				displayTimer = millis();
 			}
@@ -259,9 +317,9 @@ void loop()
 				calibrationFactor = (int16_t)((sensorMicroVolts * 1000L) / 2095L);
 				// EEPROM.put(EEPROM_CALIBRATION_ADDRESS, calibrationResult);
 #ifdef DEBUG
-				Serial.println("Calibration complete:");
-				Serial.print(sensorMicroVolts); Serial.println(" µV");
-				Serial.println(calibrationFactor);
+				Serial.println("Calibration complete");
+				Serial.print("Sensor: "); Serial.print(sensorMicroVolts); Serial.println(" µV");
+				Serial.print("Calibration factor:"); Serial.println(calibrationFactor);
 #endif
 				state = STATE_ANALYZE;
 				updateDisplay = true;
