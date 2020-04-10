@@ -1,5 +1,10 @@
 # Nitrox Analyzer
-> Another arduino-based oxygen analyzer for EANx/Nitrox diving gases.
+> An arduino-based oxygen analyzer for EANx/Nitrox diving gases.
+
+[![PlatformIO][build-with-platformio]][platformio-url]
+[![KiCad][made-with-kicad]][kicad-url]
+![Nitrox][dive-nitrox]
+
 <!---
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -14,7 +19,7 @@
 
 * [About the Project](#about-the-project)
   * [Built With](#built-with)
-* [Getting Started](#getting-started)
+* [Hardware](#hardware)
 * [Roadmap](#roadmap)
 * [License](#license)
 * [Contact](#contact)
@@ -24,7 +29,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Nitrox Analyzer][product-screenshot]]
 
 There are many plans and schematics for Nitrox analyzers available online.
 This project is an attempt to build a compact and neat device, inspired by the main characteristics of these designs:
@@ -38,25 +43,43 @@ This project is an attempt to build a compact and neat device, inspired by the m
 * Custom PCB mounted for increased reliability and more polished look
 
 ### Built With
-* [PlatformIO](https://platformio.org/)
+
+* [PlatformIO][platformio-url]
   * Arduino Framework
   * U8g2
   * ClickEncoder
   * TimerOne
-* [KiCAD](https://kicad-pcb.org/)
+* [KiCad](https://kicad-pcb.org/) for PCB design
 
 
-<!-- GETTING STARTED -->
-## Getting Started
+<!-- HARDWARE -->
+## Hardware
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This analyzer is based on classical and cheap components, they can be sourced for <20€ (oxygen cell excluded):
+
+
+* **Arduino Pro Mini 3.3V/8MHz:** this microcontroller board has been chosen for its availability in 3.3V version and therefore the possibility to run on a single Li-ion battery.
+* **ADS1115 breakout board:** this provides 16-bit ADC resolution over I²C, with PGA up to 16x
+* **Rotary encoder with switch**
+* **OLED 128x64 I²C display**
+* A few small and passive components
+* Optional:
+  * Li-ion battery (18650)
+  * TP4056 micro-usb battery charger with protection
+  * Buzzer
+  * Case
+* You must also source an oxygen cell (e.g. used in a CCR)
+
+Because the Pro Mini does not integrate a USB interface, you have to use a **USB to UART** breakout adapter (typically FTDI ft232) in order to program the chip. This can also be sourced for ~2€. Make sure to set the jumper on the 3.3V position.
+
+The analyzer can be assembled by hand-wiring the components, or by soldering them on a PCB.
+A detailled BOM for the PCB is available in the project `pcb` folder.
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/plut0nium/eanx_analyzer/issues) for a list of proposed features (and known issues).
 
 
 <!-- LICENSE -->
@@ -68,37 +91,28 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+_Charles Fourneau_
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/plut0nium/eanx_analyzer](https://github.com/plut0nium/eanx_analyzer)
 
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
+* [U8g2](https://github.com/olikraus/u8g2/)
+* [ClickEncoder by Dennis](https://github.com/soligen2010/encoder)
+* [TimerOne](https://github.com/PaulStoffregen/TimerOne)
+* [Adafruit_ADS1X15](https://github.com/adafruit/Adafruit_ADS1X15)
+* and many others...
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=flat-square
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=flat-square
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=flat-square
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=flat-square
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: doc
+[dive-nitrox]: https://img.shields.io/badge/Dive-Nitrox-green
+
+[build-with-platformio]: https://img.shields.io/badge/build%20with-PlatformIO-orange
+[platformio-url]: https://platformio.org
+[made-with-kicad]: https://img.shields.io/badge/made%20with-KiCad-blue
+[kicad-url]: https://www.kicad-pcb.org/
+[issues-url]: https://github.com/plut0nium/eanx_analyzer/issues
+[license-shield]: https://img.shields.io/github/license/plut0nium/eanx_analyzer.svg?style=flat-square
+[license-url]: https://github.com/plut0nium/eanx_analyzer/blob/master/LICENSE
