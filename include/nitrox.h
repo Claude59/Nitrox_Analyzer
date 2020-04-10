@@ -1,5 +1,5 @@
-#ifndef _SCUBA_H_
-#define _SCUBA_H_
+#ifndef _NITROX_H_
+#define _NITROX_H_
 
 #include <stdint.h>
 
@@ -16,4 +16,4 @@
  */
 uint16_t calc_mod(uint16_t fO2, uint16_t pO2_max = 1600u);
 
-#endif // _SCUBA_H_
+#endif // _NITROX_H_

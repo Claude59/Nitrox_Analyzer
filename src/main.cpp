@@ -9,7 +9,7 @@
 #include <Wire.h>
 
 #include "config.h"
-#include "scuba.h"
+#include "nitrox.h"
 #include "state.h"
 
 // LCD
