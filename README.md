@@ -78,21 +78,15 @@ A detailled BOM for the PCB is available in the project `pcb` folder.
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/plut0nium/eanx_analyzer/issues) for a list of proposed features (and known issues).
+See the [open issues][issues-url] for a list of proposed features (and known issues).
 
 
 <!-- LICENSE -->
 ## License
 
+Copyright © 2020 Charles Fourneau
+
 Distributed under the MIT License. See `LICENSE` for more information.
-
-
-<!-- CONTACT -->
-## Contact
-
-_Charles Fourneau_
-
-Project Link: [https://github.com/plut0nium/eanx_analyzer](https://github.com/plut0nium/eanx_analyzer)
 
 
 <!-- ACKNOWLEDGEMENTS -->
@@ -110,6 +104,6 @@ Project Link: [https://github.com/plut0nium/eanx_analyzer](https://github.com/pl
 [platformio-url]: https://platformio.org
 [made-with-kicad]: https://img.shields.io/badge/Made%20with-KiCad-blue
 [kicad-url]: https://www.kicad-pcb.org/
-[issues-url]: https://github.com/plut0nium/eanx_analyzer/issues
-[license-shield]: https://img.shields.io/github/license/plut0nium/eanx_analyzer.svg?style=flat-square
-[license-url]: https://github.com/plut0nium/eanx_analyzer/blob/master/LICENSE
+[issues-url]: https://github.com/plut0nium/Nitrox_Analyzer/issues
+[license-shield]: https://img.shields.io/github/license/plut0nium/Nitrox_Analyzer.svg?style=flat-square
+[license-url]: https://github.com/plut0nium/Nitrox_Analyzer/blob/master/LICENSE
