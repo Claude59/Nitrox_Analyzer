@@ -31,6 +31,7 @@
 #define BUZZER_PIN	8
 
 // EEPROM
+#define EEPROM_ENABLE
 #define EEPROM_CALIBRATION_ADDRESS 0x00
 
 #endif // _CONFIG_H_

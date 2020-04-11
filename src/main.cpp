@@ -125,7 +125,6 @@ void renderDisplay()
 			u8g2.println(oxygenConcentration % 100);
 			// print MOD
 			u8g2.setFont(u8g2_font_6x13_tr);
-			//u8g2.drawStr(0,63,"pO2 1.6 > MOD 55m");
 			u8g2.drawStr(0,63,displayFooterBuffer);
 			break;
 		case STATE_CALIBRATE_MENU:
@@ -203,8 +202,13 @@ void setup()
 	stateModDisplay = PPO2_1_6;
 	displayTimer = millis();			// initialize for splash screen
 	batteryTimer = -BATTERY_INTERVAL; 	// force initial reading
+#ifdef EEPROM_ENABLE
 	// Load last calibration factor
-	// EEPROM.get(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
+	EEPROM.get(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
+#ifdef DEBUG
+	Serial.print("EEPROM load: "); Serial.println(calibrationFactor);
+#endif
+#endif
 }
 
 
@@ -359,18 +363,23 @@ void loop()
 			} 
 			break;
 		case STATE_CALIBRATE:
-			// TODO: handle input
+			// TODO: handle inputs ?
 			if (millis() - calibrateTimer >= CALIBRATION_TIME) {
 				// TODO: check calibration sample quality (e.g. max deviation)
 				// 7812 is ADS resolution in [nV / LSB] at PGA = 16
 				// 2095 is calibration oxygen concentration (20.95% in air)
 				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
 				calibrationFactor = (int16_t)((sensorMicroVolts * 1000L) / 2095L);
-				// EEPROM.put(EEPROM_CALIBRATION_ADDRESS, calibrationResult);
 #ifdef DEBUG
 				Serial.println("Calibration complete");
 				Serial.print("Sensor: "); Serial.print(sensorMicroVolts); Serial.println(" µV");
 				Serial.print("Calibration factor:"); Serial.println(calibrationFactor);
+#endif
+#ifdef EEPROM_ENABLE
+				EEPROM.put(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
+	#ifdef DEBUG
+				Serial.println("Saved to EEPROM");
+	#endif
 #endif
 				state = STATE_ANALYZE;
 				updateDisplay = true;
