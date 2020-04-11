@@ -79,6 +79,8 @@ int16_t oxygenConcentration = 0;
 int32_t sensorMicroVolts;
 char displayFooterBuffer[24];
 
+
+// Main render function
 void renderDisplay()
 {
 	u8g2.firstPage();
@@ -108,7 +110,7 @@ void renderDisplay()
 			else {
 				u8g2.print(F("Analyzing"));	
 			}
-//			u8g2.setFont(u8g2_font_inb30_mn);
+			//u8g2.setFont(u8g2_font_inb30_mn);
 			u8g2.setFont(u8g2_font_logisoso30_tn);
 			u8g2.setCursor(20,48);
 			// print O2 as a decimal percentage
@@ -187,9 +189,11 @@ void setup()
 #endif
 	ads.startContinuousConversion();
 
+	// Rolling average
 	readings.begin();
-
-	Timer1.initialize(1000);
+	
+	// Input processing and debouncing
+	Timer1.initialize(1000); // 1ms
 	Timer1.attachInterrupt(timerIsr);
 
 	// initialize variables
@@ -202,6 +206,7 @@ void setup()
 	// Load last calibration factor
 	// EEPROM.get(EEPROM_CALIBRATION_ADDRESS, calibrationFactor);
 }
+
 
 void loop()
 {
@@ -368,7 +373,6 @@ void loop()
 			// TODO
 			break;
 	}
-
 
 #ifdef DEBUG
 	if (buttonState != 0) {
