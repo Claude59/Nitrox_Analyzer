@@ -1,3 +1,13 @@
+/**
+ * RollingAverage
+ * A rolling/moving average library for Arduino
+ * 
+ * MIT License
+ * 
+ * Copyright © 2020 Charles Fourneau
+ *
+ */
+
 #ifndef _ROLLING_AVERAGE_H_
 #define _ROLLING_AVERAGE_H_
 

@@ -1,3 +1,15 @@
+/**
+ * This file is part of
+ * 
+ * RollingAverage
+ * A rolling/moving average library for Arduino
+ * 
+ * MIT License
+ * 
+ * Copyright © 2020 Charles Fourneau
+ *
+ */
+
 #include <RollingAverage.h>
 
 RollingAverage::RollingAverage() {
