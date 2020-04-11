@@ -273,6 +273,14 @@ void loop()
 				stateCalibMenu = YES;
 				updateDisplay = true;
 				break;
+#ifdef DEBUG
+			case ClickEncoder::DoubleClicked: //6
+				Serial.print("ADC reading:      "); Serial.println(readings.getAverage());
+				Serial.print("Sensor µV:        "); Serial.println(sensorMicroVolts);
+				Serial.print("O2 concentration: "); Serial.println(oxygenConcentration);
+				tone(BUZZER_PIN,4000,500);
+				break;
+#endif
 			}
 			if (encDelta != 0) {
 				if (encDelta > 0) {
@@ -373,39 +381,6 @@ void loop()
 			// TODO
 			break;
 	}
-
-#ifdef DEBUG
-	if (buttonState != 0) {
-		switch (buttonState) {
-			case ClickEncoder::Open:          //0
-			break;
-
-			case ClickEncoder::Closed:        //1
-			break;
-
-			case ClickEncoder::Pressed:       //2
-			break;
-
-			case ClickEncoder::Held:          //3
-			break;
-
-			case ClickEncoder::Released:      //4
-			break;
-
-			case ClickEncoder::Clicked:       //5
-				// updateDisplay = true;
-				Serial.print("ADC reading:");
-				//Serial.println(ads.readLastConversion());
-				Serial.println(readings.getAverage());
-				Serial.print("O2 concentration:"); Serial.println(oxygenConcentration);
-				break;
-
-			case ClickEncoder::DoubleClicked: //6
-				tone(BUZZER_PIN,4000,500);
-				break;
-		}
-	}
-#endif
 
 	if (updateDisplay) {
 		renderDisplay();
