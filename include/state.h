@@ -1,3 +1,15 @@
+/**
+ * This file is part of
+ * 
+ * NITROX ANALYZER
+ * An Arduino based EANx/Nitrox analyzer
+ * 
+ * MIT License, see LICENSE file
+ * 
+ * Copyright © 2020 Charles Fourneau
+ * 
+ */
+
 #ifndef _STATE_H_
 #define _STATE_H_
 
