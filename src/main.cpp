@@ -48,6 +48,7 @@ uint32_t batteryTimer = 0;
 int16_t batteryVoltage = 0;
 int16_t calibrationFactor = 0; // unit is [1e-1 µV / %], value should be ~5000
 int16_t oxygenConcentration = 0;
+int32_t sensorMicroVolts;
 char displayFooterBuffer[24];
 
 void renderDisplay()
@@ -70,9 +71,15 @@ void renderDisplay()
 			u8g2.print("V");
 			break;
 		case STATE_ANALYZE:
+		case STATE_HOLD:
 			u8g2.setFont(u8g2_font_6x13_tr);
 			u8g2.setCursor(0,10);
-			u8g2.print(F("Analyzing"));
+			if (state == STATE_HOLD) {
+				u8g2.print(F(">>> HOLD <<<"));
+			}
+			else {
+				u8g2.print(F("Analyzing"));	
+			}
 //			u8g2.setFont(u8g2_font_inb30_mn);
 			u8g2.setFont(u8g2_font_logisoso30_tn);
 			u8g2.setCursor(20,48);
@@ -217,8 +224,18 @@ void loop()
 			}
 			break;
 		case STATE_ANALYZE:
+		case STATE_HOLD:
 			// handle input
-			if (buttonState == ClickEncoder::Held) {
+			switch (buttonState) {
+			case ClickEncoder::Clicked:
+				if (state == STATE_ANALYZE) {
+					state = STATE_HOLD;
+				}
+				else {
+					state = STATE_ANALYZE;
+				}
+				break;
+			case ClickEncoder::Held:
 				state = STATE_CALIBRATE_MENU;
 				stateCalibMenu = YES;
 				updateDisplay = true;
@@ -233,20 +250,22 @@ void loop()
 				}
 			}
 			if (millis() - displayTimer >= DISPLAY_REFRESH_RATE) {
-				int32_t sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
-				if (sensorMicroVolts <= 0) {
-					// TODO: ERROR BAD SENSOR
-					// adjust threshold ? ex. 5mV ?
+				if (state == STATE_ANALYZE) {
+					sensorMicroVolts = ((int32_t)readings.getAverage() * 7812L) / 1000L;
+					if (sensorMicroVolts <= 0) {
+						// TODO: ERROR BAD SENSOR
+						// adjust threshold ? ex. 5mV ?
+					}
+					oxygenConcentration = (int16_t)((sensorMicroVolts * 1000L) / calibrationFactor);
+					if (oxygenConcentration < 0) {
+						// TODO: ask for calibration
+						oxygenConcentration = 0;
+					}
+					else if (oxygenConcentration > 10200) {
+						// TODO: ERROR MODE
+					}
 				}
-				oxygenConcentration = (int16_t)((sensorMicroVolts * 1000L) / calibrationFactor);
-				if (oxygenConcentration < 0) {
-					// TODO: ask for calibration
-					oxygenConcentration = 0;
-				}
-				else if (oxygenConcentration > 10200) {
-					// TODO: ERROR MODE
-				}
-				// TODO: calculate MOD
+				// MOD calculation
 				uint16_t pO2_max, mod;
 				if (stateModDisplay == MV) {
 					sprintf_P(displayFooterBuffer, PSTR("Sensor: %d.%02d mV"), 
@@ -316,6 +335,9 @@ void loop()
 				updateDisplay = true;
 			}
 			// render
+			break;
+		case STATE_ERROR:
+			// TODO
 			break;
 	}
 
