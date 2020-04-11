@@ -5,14 +5,9 @@
 [![KiCad][made-with-kicad]][kicad-url]
 ![Nitrox][dive-nitrox]
 
-<!---
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
--->
+<p align="center"> 
+  <img src="doc/analyzer_picture.jpg" alt="Nitrox Analyzer" width="240"/>
+</p>
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
@@ -29,15 +24,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Nitrox Analyzer][product-screenshot]]
-
 There are many plans and schematics for Nitrox analyzers available online.
-This project is an attempt to build a compact and neat device, inspired by the main characteristics of these designs:
+This project is an attempt to build a compact and neat device, inspired by the main characteristics of these designs, including:
 
-* Arduino based
 * Bright OLED display
 * Simple user interface using a rotary encoder
-* Automatic MOD calculation for most common O<sub>2</sub> partial pressures
+* Automatic MOD calculation for most common O<sub>2</sub> partial pressures (1.4, 1.5 and 1.6bar)
+* Automatic calibration
 * Li-Ion battery, rechargeable using a micro-USB phone charger
 * Sound feedback
 * Custom PCB mounted for increased reliability and more polished look
@@ -49,26 +42,32 @@ This project is an attempt to build a compact and neat device, inspired by the m
   * U8g2
   * ClickEncoder
   * TimerOne
-* [KiCad](https://kicad-pcb.org/) for PCB design
+* [KiCad][kicad-url]
 
 
 <!-- HARDWARE -->
 ## Hardware
 
+[![Wiring schematic](doc/analyzer_wiring.png?raw=true )](doc/analyzer_wiring.pdf)
+
 This analyzer is based on classical and cheap components, they can be sourced for <20€ (oxygen cell excluded):
 
-
-* **Arduino Pro Mini 3.3V/8MHz:** this microcontroller board has been chosen for its availability in 3.3V version and therefore the possibility to run on a single Li-ion battery.
-* **ADS1115 breakout board:** this provides 16-bit ADC resolution over I²C, with PGA up to 16x
-* **Rotary encoder with switch**
-* **OLED 128x64 I²C display**
-* A few small and passive components
-* Optional:
-  * Li-ion battery (18650)
-  * TP4056 micro-usb battery charger with protection
-  * Buzzer
-  * Case
-* You must also source an oxygen cell (e.g. used in a CCR)
+| Component | Quantity | Comment |
+| --- | --- | --- |
+| Arduino pro mini 3.3V/8MHz | 1 | 3.3V version has been chosen for its ability to run on a single 3.7V Li-ion battery |
+| ADS1115 | 1 | 16-bit ADC with PGA over I²C, using gain of 16x provides a 7.812µV resolution |
+| OLED 1.3" I²C | 1 | Cheap but very readable OLED display. WARNING: depending on the model, VCC/GND pinout can be inverted |
+| Rotary encoder with switch | 1 |  |
+| TP4056 Battery charger | 1 | Choose the version with protection IC (has 6 connection pads) |
+| 18650 Li-ion battery | 1 | Any other battery providing > 3.5V should be Ok, adjust battery monitoring divider accordingly |
+| Power switch | 1 | Simple SPST should suffice |
+| Passive buzzer | 1 |  |
+| Resistor 100Ω | 3 |  |
+| Resistor 1kΩ | 1 | For buzzer drive circuit |
+| Resistor 10kΩ | 3 | For sensor load resistor and battery monitoring divider |
+| NPN transistor (e.g. 2N2222) | 1 | For buzzer drive circuit |
+| Connector to O<sub>2</sub> cell | 1 | Choose the type adapted for your cell |
+| O<sub>2</sub> Cell sensor | 1 | You can use CCR cells |
 
 Because the Pro Mini does not integrate a USB interface, you have to use a **USB to UART** breakout adapter (typically FTDI ft232) in order to program the chip. This can also be sourced for ~2€. Make sure to set the jumper on the 3.3V position.
 
@@ -106,12 +105,10 @@ Project Link: [https://github.com/plut0nium/eanx_analyzer](https://github.com/pl
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[product-screenshot]: doc
 [dive-nitrox]: https://img.shields.io/badge/Dive-Nitrox-green
-
-[build-with-platformio]: https://img.shields.io/badge/build%20with-PlatformIO-orange
+[build-with-platformio]: https://img.shields.io/badge/Build%20with-PlatformIO-orange
 [platformio-url]: https://platformio.org
-[made-with-kicad]: https://img.shields.io/badge/made%20with-KiCad-blue
+[made-with-kicad]: https://img.shields.io/badge/Made%20with-KiCad-blue
 [kicad-url]: https://www.kicad-pcb.org/
 [issues-url]: https://github.com/plut0nium/eanx_analyzer/issues
 [license-shield]: https://img.shields.io/github/license/plut0nium/eanx_analyzer.svg?style=flat-square
